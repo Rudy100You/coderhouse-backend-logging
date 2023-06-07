@@ -1,7 +1,7 @@
-const fs = require("fs");
+import fs from "fs";
 
 class ProductManager {
-  validFields = ["title", "description", "price", "thumbnail", "code", "stock"]
+  validFields = ["title", "description", "price", "thumbnail", "code", "stock"];
 
   constructor(path) {
     this.path = path;
@@ -37,11 +37,10 @@ class ProductManager {
           return partialProduct.code === rest.code;
         })
       ) {
-
         let nextProductId =
           data.products.reduce((max, obj) => {
             return obj.id > max ? obj.id : max;
-          }, 0) + 1 
+          }, 0) + 1;
 
         data.products.push({
           id: nextProductId,
@@ -74,30 +73,32 @@ class ProductManager {
     else return product;
   }
 
-  async updateProduct(id, contentToUpdate){
-
+  async updateProduct(id, contentToUpdate) {
     let data = await this.parseDataFromFile();
-    let indexToUpdate = data.products.findIndex(product => product.id === id)
-    if(this.validateObjectKeys(contentToUpdate) && indexToUpdate >= 0){
-      data.products.splice(indexToUpdate,1, {id: indexToUpdate+1,...contentToUpdate})
+    let indexToUpdate = data.products.findIndex((product) => product.id === id);
+    if (this.validateObjectKeys(contentToUpdate) && indexToUpdate >= 0) {
+      data.products.splice(indexToUpdate, 1, {
+        id: indexToUpdate + 1,
+        ...contentToUpdate,
+      });
       fs.writeFileSync(this.path, JSON.stringify(data));
-      console.log("Updated Successfully")
-    }
-    else{
-      console.error("Nothing to update: id not found")
+      console.log("Updated Successfully");
+    } else {
+      console.error("Nothing to update: id not found");
     }
   }
 
-  async deleteProduct(id){
+  async deleteProduct(id) {
     let data = await this.parseDataFromFile();
-    if(data.products.some(product=> product.id == id)){
-      data.products.splice(data.products.findIndex(product => product.id === id),1)
-    fs.writeFileSync(this.path, JSON.stringify(data));
-      console.log(`Product with Id [${id}] has been deleted successfully`)
-    }
-    else
-    {
-      console.error(`Product with Id [${id}] does not exist`)
+    if (data.products.some((product) => product.id == id)) {
+      data.products.splice(
+        data.products.findIndex((product) => product.id === id),
+        1
+      );
+      fs.writeFileSync(this.path, JSON.stringify(data));
+      console.log(`Product with Id [${id}] has been deleted successfully`);
+    } else {
+      console.error(`Product with Id [${id}] does not exist`);
     }
   }
 
@@ -105,7 +106,7 @@ class ProductManager {
     const keys = Object.keys(obj);
     for (let i = 0; i < keys.length; i++) {
       if (!this.validFields.includes(keys[i])) {
-        return false; 
+        return false;
       }
     }
     return true;
@@ -114,66 +115,6 @@ class ProductManager {
   async parseDataFromFile() {
     return JSON.parse(await fs.promises.readFile(this.path, "utf-8"));
   }
-
 }
 
-let testProcedures = async () => {
-  let pm = new ProductManager("./productData.json");
-  await pm.addProduct(
-    "producto prueba",
-    "Este es un producto prueba",
-    200,
-    "Sin imagen",
-    "abc123",
-    25
-  );
-
-  await pm.addProduct(
-    "producto prueba2",
-    "Este es un producto prueba2",
-    200,
-    "Sin imagen",
-    "47543d",
-    35
-  );
-
-  await pm.addProduct(
-    "producto prueba62",
-    "Este es un producto prueba2",
-    200,
-    "Sin imagen",
-    "4d",
-    35
-  );
-
-  await pm.getProducts().then((products) => {
-    console.log(products);
-  });
-
-  await pm.getProductById(2).then((product) => {
-    console.log(product);
-  });
-
-  await pm.updateProduct(2,
-    {
-      title: 'producto prueba',
-      description: 'Este es un producto prueba',
-      price: 2000,
-      thumbnail: 'Sin imagen',
-      code: '5403',
-      stock: 25
-    }
-  )
-
-  await pm.getProductById(2).then((product) => {
-    console.log(product);
-  });
-
-  await pm.deleteProduct(1)
-
-  await pm.getProducts().then((product) => {
-    console.log(product);
-  });
-};
-
-testProcedures();
+export default ProductManager;
