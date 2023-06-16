@@ -1,6 +1,6 @@
 import { Router } from "express";
 import ProductManager from "../js/classes/ProductManager.js";
-const productMan = new ProductManager("src/data/productMan.json");
+const productMan = new ProductManager("src/data/productData.json");
 
 const productsRouter = Router();
 

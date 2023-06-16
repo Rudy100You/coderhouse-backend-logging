@@ -2,11 +2,11 @@
   "name": "coderhouse-backend-fp",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "./src/app.js",
   "type": "module",
   "scripts": {
-    "start": "node --trace-uncaught src/app.js",
-    "dev": "nodemon src/app.js",
+    "start": "node --trace-uncaught ./src/app.js",
+    "dev": "nodemon ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
