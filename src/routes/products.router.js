@@ -1,5 +1,5 @@
 import { Router } from "express";
-import ProductManager from "../js/classes/ProductManager.js";
+import ProductManager from "../js/managers/ProductManager.js";
 const productMan = new ProductManager("src/data/productData.json");
 
 const productsRouter = Router();
@@ -35,16 +35,16 @@ productsRouter.post("/", (req, res) => {
       productMan
         .addProduct(newProduct)
         .then(() => {
-          res.status(201).send("Product created successfully");
+          res.status(201).send({message:"Product created successfully"});
         })
         .catch((err) => {
-          res.status(422).send(err.message);
+          res.status(422).send({message:err.message});
         });
     } else {
-      res.status(422).send("Invalid Request");
+      res.status(422).send({message:"Invalid Request"});
     }
   } else {
-    res.status(415).send("Request is empty");
+    res.status(415).send({message:"Request is empty"});
   }
 });
 
@@ -57,16 +57,16 @@ productsRouter.put("/:pid", (req, res) => {
       productMan
         .updateProduct(parseInt(productID), modProduct)
         .then(() => {
-          res.status(200).send("Product updated successfully");
+          res.status(200).send({message:"Product updated successfully"});
         })
         .catch((err) => {
-          res.status(422).send(err.message);
+          res.status(422).send({message:err.message});
         });
     } else {
-      res.status(422).send("Invalid Request");
+      res.status(422).send({message:"Invalid Request"});
     }
   } else {
-    res.status(415).send("Request is empty");
+    res.status(415).send({message:"Request is empty"});
   }
 });
 
@@ -76,10 +76,10 @@ productsRouter.delete("/:pid", (req, res) => {
   productMan
     .deleteProduct(parseInt(productID))
     .then(() => {
-      res.status(200).send("Product deleted successfully");
+      res.status(200).send({message:"Product deleted successfully"});
     })
     .catch((err) => {
-      res.status(422).send(err.message);
+      res.status(422).send({message:err.message});
     });
 });
 
