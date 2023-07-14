@@ -1,0 +1,16 @@
+{
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+      },
+    "env": {
+      "node": true
+    },
+    "rules": {
+        "mongodb/no-replace": 0
+    },
+    "plugins": [
+        "mongodb"
+    ]
+  }

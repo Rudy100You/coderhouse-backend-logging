@@ -1,3 +1,5 @@
+/*eslint-disable*/
+
 const socket = io();
 
 socket.on('dataUpdated', (data) => {

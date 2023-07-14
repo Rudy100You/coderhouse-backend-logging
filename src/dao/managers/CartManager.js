@@ -21,7 +21,7 @@ class CartManager {
       .then((fileData) => {
         data = fileData;
       })
-      .catch((err) => {
+      .catch(() => {
         console.info(
           "data file not found or empty, formatting/creating new file"
         );

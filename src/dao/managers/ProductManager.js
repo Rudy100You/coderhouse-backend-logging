@@ -31,7 +31,7 @@ class ProductManager {
       .then((fileData) => {
         data = fileData;
       })
-      .catch((err) => {
+      .catch(() => {
         console.info(
           "data file not found or empty, formatting/creating new file"
         );
@@ -49,6 +49,7 @@ class ProductManager {
     let codeFound;
     if (
       !data.products.some((p) => {
+        // eslint-disable-next-line no-unused-vars
         let { id, ...rest } = p;
         codeFound = rest.code;
         return partialProduct.code === rest.code;

@@ -1,0 +1,15 @@
+<div id="chat"> 
+    <h1>CODERCHAT</h1>
+    <div>
+        <input type="text" id="chatBox">
+    </div>
+    <div>
+        <h3>Messages:</h3>
+        <p id="messageLogs">
+            {{#each messages}}
+            <br>[{{user}}]: {{message}}</br>
+            {{/each}}
+        </p>
+    </div>
+    <script src="/js/chat.js"></script>
+</div>
