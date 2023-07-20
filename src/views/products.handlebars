@@ -5,24 +5,24 @@
     <thead>
        
       <tr>
-        <th>ID</th>
+        <th>Code</th>
         <th>Name</th>
-        <th>Email</th>
-        <th>Age</th>
-        <th>Action</th>
+        <th>Price</th>
+        <th>Status</th>
+        <th>Stock</th>
       </tr>
       
     </thead>
 
     <tbody> {{#each products}}
       <tr>
-        <td>1</td>
-        <td>John Doe</td>
-        <td>john@example.com</td>
-        <td>30</td>
-        
+        <td>{{code}}</td>
+        <td>{{title}}</td>
+        <td>{{price}}</td>
+        <td>{{status}}</td>
+        <td>{{stock}}</td>
         <td>
-          <button type="button" class="btn btn-success">Edit</button>
+          <button type="button" class="btn btn-success" onclick="re">addToCart</button>
         </td>
       </tr>{{/each}}
   </table>
