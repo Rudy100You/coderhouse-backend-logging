@@ -1,131 +1,109 @@
 import { Router } from "express";
 //import ProductManager from "../dao/managers/ProductManager.js";
-import { productsModel } from "../dao/models/products.model.js";
+import { ProductRepository } from "../dao/repositories/product.repository.js";
+import { commonErrorOutput } from "../utils.js";
 //const productMan = new ProductManager("src/data/productData.json");
-import { commonErrorMessages } from "../utils.js";
-const {INTERNAL_ERROR_MESSAGE }= commonErrorMessages;
-
 const productsRouter = Router();
+const productRepository = new ProductRepository();
 
-productsRouter.get("/", async (req, res) => {
-  productsModel
-    .find()
-    .then((products) => {
-      let { limit } = req.query;
-      if (Number.parseInt(limit) >= 0) {
-        res.json(products.splice(0, limit));
-      } else {
-        res.json(products);
+productsRouter.get("/", (req, res) => {
+  let responseBodyMapping;
+  let { limit, page, query, sort } = req.query;
+
+  if (!limit || parseInt(limit) === 0) limit = 10;
+  productRepository
+    .getAllPaginated(limit, page, query, sort)
+    .then((pagRes) => {
+      responseBodyMapping = pagRes;
+      if (
+        page &&
+        (responseBodyMapping.totalPages < parseInt(page) ||
+          parseInt(page) < 1 ||
+          isNaN(page))
+      ) {
+        let err = new Error("Requested page doesn't exist");
+        err.status = 404;
+        throw err;
       }
+
+      const linkURL =
+        req.protocol + "://" + req.get("host") + req.baseUrl + "?page=";
+      responseBodyMapping.prevLink = null;
+      responseBodyMapping.nextLink = null;
+
+      if (responseBodyMapping.prevPage)
+        responseBodyMapping.prevLink = linkURL + responseBodyMapping.prevPage;
+      if (responseBodyMapping.nextPage)
+        responseBodyMapping.nextLink = linkURL + responseBodyMapping.nextPage;
+
+      res.json({ status: "success", ...responseBodyMapping });
     })
-    .catch(() => {
-      res.status(500).send(INTERNAL_ERROR_MESSAGE);
+    .catch((err) => {
+      commonErrorOutput(res, err);
     });
 });
 
 productsRouter.get("/:pid", (req, res) => {
   let productID = req.params.pid;
-  productsModel
-    .findOne({ id: productID })
+  productRepository
+    .getOne(productID)
     .then((product) => {
-      if (product) {
-        res.json(product);
-      } else {
-        res.status(404).send(`Product with id [${productID}] not found`);
-      }
+      res.json(product);
     })
-    .catch(() => {
-      res.status(500).send(INTERNAL_ERROR_MESSAGE);
+    .catch((err) => {
+      commonErrorOutput(res, err, "Product could not be found");
     });
 });
 
-productsRouter.post("/", (req, res) => {
+productsRouter.post("/", async (req, res) => { 
   const newProduct = req.body;
-
-  productsModel.countDocuments().then((pCount) => {
-    let productID = pCount + 1;
-    productsModel
-      .aggregate([{ $group: { _id: null, maxField: { $max: "$id" } } }])
-      .exec()
-      .then((result) => {
-        if (result.length > 0) {
-          productID = result[0].maxField + 1;
-          const newProductModel = new productsModel({
-            id: productID,
-            ...newProduct,
-          });
-
-          productsModel
-            .exists({ code: newProduct.code })
-            .then((codeFound) => {
-              if (!codeFound) {
-                newProductModel
-                  .save()
-                  .then(() => {
-                    res
-                      .status(201)
-                      .send({ message: "Product created successfully" });
-                  })
-                  .catch((err) => {
-                    res.status(422).send({ message: err.message });
-                  });
-              } else {
-                res.status(422).send({
-                  message: `code with value ${newProduct.code} already exists`,
-                });
-              }
-            })
-            .catch(() => {
-              res.status(500).send(INTERNAL_ERROR_MESSAGE);
-            });
-        } else {
-          console.log("No documents found");
-        }
-      })
-      .catch(() => {
-        res.status(500).send(INTERNAL_ERROR_MESSAGE);
-      });
-  });
+  try {
+    const productFound = await productRepository.existsByCriteria({
+      code: newProduct.code,
+    });
+    if (productFound) {
+      let err = new Error(`Product with code ${newProduct.code} already exists`);
+      err.status = 400;
+      throw err;
+    } else {
+      await productRepository.create(newProduct);
+      res
+        .status(201)
+        .json({ status: "success", payload: "Product created successfully" });
+    }
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
 });
 
-productsRouter.put("/:pid", (req, res) => {
+productsRouter.put("/:pid", async (req, res) => {
+
   const productID = req.params.pid;
   const modProduct = req.body;
 
-  productsModel
-    .findOneAndUpdate({ id: parseInt(productID) }, modProduct, { new: false })
-    .then(() => {
-      res.status(200).send({ message: "Product updated successfully" });
-    })
-    .catch((error) => {
-      console.error("Error updating product:", error);
-      res.status(500).send(INTERNAL_ERROR_MESSAGE);
-    });
+  try {
+    await productRepository.update(productID, modProduct)
+    res
+        .status(200)
+        .json({ status: "success", payload: "Product updated successfully" });
+
+  }catch(err){
+    commonErrorOutput(res,err, `Product with id [${productID}] does not exist for update`)
+  }
+
 });
 
-productsRouter.delete("/:pid", (req, res) => {
+productsRouter.delete("/:pid", async (req, res) => {
   const productID = req.params.pid;
+  try {
+    await productRepository.delete(productID)
+    res
+        .status(200)
+        .json({ status: "success", payload: "Product deleted successfully" });
 
-  productsModel
-    .findOneAndDelete({ id: productID })
-    .then((found) => {
-      if (found)
-        res.status(200).send({ message: "Product deleted successfully" });
-      else 
-        res.status(200).send({ message: "Nothing to delete" });
-    })
-    .catch((error) => {
-      console.error("Error updating product:", error);
-      res.status(500).send(INTERNAL_ERROR_MESSAGE);
-    });
-  /*productMan
-    .deleteProduct(parseInt(productID))
-    .then(() => {
-      res.status(200).send({ message: "Product deleted successfully" });
-    })
-    .catch((err) => {
-      res.status(422).send({ message: err.message });
-    });*/
+  }catch(err){
+    commonErrorOutput(res,err, `Product with id [${productID}] does not exist for deletion`)
+  }
 });
 
 export default productsRouter;
