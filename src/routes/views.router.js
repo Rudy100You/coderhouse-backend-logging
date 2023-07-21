@@ -1,68 +1,46 @@
 import { Router } from "express";
-import ProductManager from "../dao/managers/ProductManager.js";
-import { messagesModel } from "../dao/models/messages.model.js";
-//import { commonErrorMessages } from "../utils.js";
+import { ProductRepository } from "../dao/repositories/product.repository.js";
+import { CartRepository } from "../dao/repositories/cart.repository.js";
+const viewsRouter = Router();
+const productRepository = new ProductRepository()
+const cartRepository = new CartRepository()
 
-//const {INTERNAL_ERROR_MESSAGE}= commonErrorMessages
-const socketViewsRouter = Router();
-const productMan = new ProductManager("src/data/productData.json");
+viewsRouter.get("/products/:pgid?",async (req, res)=>{
+    const {pgid} = req.params
+    let {category, sort} = req.query
+    let data
+    try{
+        data = await productRepository.getAllPaginated(10,pgid, {category: category}, sort)
+        if(isNaN(pgid) || pgid > data.totalPages)
+            data = { invalidPageError : true}
+    }
+    catch(err){
+        console.error(err)
+    }
+    res.render("products",data)
+})
 
-const retrieveMessagesfromDB = async()=>
-  messagesModel.find().then(coll=>{
-    const docs = coll.map(doc=> doc.toObject());
-    console.log(docs)
-    return [...docs]
-   }).catch(error=>{
-    console.error(error)
-   })
+viewsRouter.get("/product/:pid",async (req, res)=>{
+    const {pid} = req.params
+    let products
+    try{
+        products = await productRepository.getOne(pid)
+    }
+    catch(err){
+        console.error(err)
+    }
+    res.render("product",products)
+})
 
-
-const viewsRouter = (io) => {
-  socketViewsRouter.get("/", async (req, res) => {
-    res.render("home", await productMan.getProducts());
-  });
-
-  socketViewsRouter.get("/realtimeproducts", async (req, res) => {
-    res.render("realTimeProducts", {});
-    let products = await productMan.getProducts();
-
-    io.on("connection", (socket) => {
-      io.emit("dataUpdated", products);
-      console.log("Cliente conectado");
-      socket.on("updateProductList", async () => {
-        products = await productMan.getProducts();
-        io.emit("dataUpdated", products);
-      });
-    });
-  });
-
-  socketViewsRouter.get("/chat",async (req,res)=>{
-    
-
-    io.on("connection", (socket) => {
-      retrieveMessagesfromDB().then(data=>{
-        io.emit("messageLogs",data)
-      })
-      
-      console.log("Cliente conectado");
-      socket.on("message",async data=>{
-        await messagesModel.create(data).then(()=>{
-          retrieveMessagesfromDB().then(data=>{
-          io.emit("messageLogs",data)
-        })
-        }).catch(error=>{
-          console.error(error)
-        })
-        
-      });
-    });
-
-    retrieveMessagesfromDB().then(data=>{
-      res.render("chat",{messages:data})
-    })
-  })
-
-  return socketViewsRouter;
-};
-
+viewsRouter.get("/carts/:cid",async (req, res)=>{
+    const {cid} = req.params
+    let cart
+    try{
+        cart = await cartRepository.getOne(cid)
+    }
+    catch(err){
+        console.error(err)
+    }
+    res.render("cart",cart)
+})
 export default viewsRouter;

@@ -1,89 +1,135 @@
 import { Router } from "express";
-//import CartManager from "../dao/managers/CartManager.js";
-//const cartMan = new CartManager("src/data/cartData.json");
-import { cartsModel } from "../dao/models/carts.model.js";
-import { commonErrorMessages } from "../utils.js";
-const { INTERNAL_ERROR_MESSAGE } = commonErrorMessages;
+import { CartRepository } from "../dao/repositories/cart.repository.js";
+import { commonErrorOutput } from "../utils.js";
+import { ProductRepository } from "../dao/repositories/product.repository.js";
+//import CartManager from "../dao/managers/CartManager.js"
+//const cartMan = new CartManager("src/data/cartData.json")
+//import { cartRepository } from "../dao/models/carts.repository.js"
+//import { commonErrorMessages } from "../utils.js"
 
 const cartsRouter = Router();
 
-cartsRouter.get("/:cid", (req, res) => {
-  let cartID = req.params.cid;
-  cartsModel
-    .findById(cartID)
-    .then((found) => {
-      if (found) {
-        res.json(found);
-      } else res.status(404).send({ message: "Product not found" });
-    })
-    .catch((error) => {
-      if (error.name === "CastError") {
-        res.status(404).send({ message: "Invalid cart ID" });
-      } else {
-        console.error(error);
-        res.status(500).send(error.message);
-      }
-    });
-});
+const cartRepository = new CartRepository();
+const productRepository = new ProductRepository();
 
-cartsRouter.post("/", (req, res) => {
-  const products = req.body.products ?? [];
+const validateProducts = async (products) => {
   if (products.length > 0) {
-    cartsModel
-      .create({ products })
-      .then(() => {
-        res.status(201).send({ message: "Cart created successfully" });
-      })
-      .catch((error) => {
-        console.error(error);
-        if (error.name == "ValidationError")
-          res.status(422).send({ message: "Invalid payload" });
-        else res.status(500).send(INTERNAL_ERROR_MESSAGE);
-      });
-  } else {
-    res.status(422).send("Invalid request body");
+    for (const product of products) {
+      await productRepository
+        .existsByCriteria({ _id: product.product })
+        .then((exists) => {
+          if (!exists) {
+            const err = new Error(
+              `Product with id [${product.product}] does not exist`
+            );
+            err.status = 404;
+            throw err;
+          }
+        })
+        .catch((e) => {
+          //TODO: generalize this error
+          if (e.name == "CastError")
+            e.message = `field [products.product] must be of type ${e.kind}`;
+          throw e;
+        });
+    }
+  }
+  return true;
+};
+
+cartsRouter.get("/:cid", async (req, res) => {
+  let cartID = req.params.cid;
+  try {
+    const cart = await cartRepository.getOne(cartID);
+    res.json({ status: "success", payload: cart });
+  } catch (err) {
+    commonErrorOutput(res, err, "Cart could not be found");
   }
 });
 
-cartsRouter.post("/:cid/product/:pid", (req, res) => {
-  const {cid, pid} = req.params
-  /*cartMan
-    .addProductToCart(req.params.cid, parseInt(req.params.pid))
-    .then(() => {
-      res.status(201).send("Product added");
-    })
-    .catch((err) => {
-      res.status(422).send(err.message);
-    });*/
-    cartsModel.findOneAndUpdate(
-      {_id: cid, products: { $elemMatch: { id: pid } } },
-      { $inc: { "products.$.quantity": 1 } },
-      { new: true }
-    )
-      .then((updatedDoc) => {
-        if (updatedDoc) {
-          console.log('product found and quantity incremented:', updatedDoc);
-          res.status(201).send({message:"Product added successfully"})
-        } else {
-          cartsModel.findOneAndUpdate(
-            {_id: cid, products: {$exists:true}},
-            { $addToSet: { products: { id: pid} } },
-            { new: true, upsert: true }
-          )
-            .then((newDoc) => {
-              console.log('New product created:', newDoc);
-              res.status(201).send({message:"Product added successfully"})
-            })
-            .catch((error) => {
-              console.error('Error creating new document:', error);
-              res.status(500).send(INTERNAL_ERROR_MESSAGE);
-            });
-        }
-      })
-      .catch((error) => {
-        console.error('Error updating document:', error);
-        res.status(500).send(INTERNAL_ERROR_MESSAGE);
+cartsRouter.post("/", async (req, res) => {
+  const newCart = req.body ?? { products: [] };
+  try {
+    await validateProducts(newCart.products);
+    await cartRepository.create(newCart);
+    res
+      .status(201)
+      .json({ status: "success", payload: "Cart created successfully" });
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
+});
+
+cartsRouter.post("/:cid/product/:pid", async (req, res) => {
+  const { cid, pid } = req.params;
+  try {
+    await cartRepository.insertCartProducts(cid, pid);
+    res
+      .status(201)
+      .json({ status: "success", payload: "Product inserted successfully" });
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
+});
+
+cartsRouter.delete("/:cid/product/:pid", async (req, res) => {
+  const { cid, pid } = req.params;
+  try {
+    await cartRepository.removeFromCart(cid, pid);
+    res
+      .status(200)
+      .json({ status: "success", payload: "Product deleted successfully" });
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
+});
+
+cartsRouter.put("/:cid", async (req, res) => {
+  const { cid } = req.params;
+  const cart = req.body;
+  try {
+    await validateProducts(cart.products);
+    await cartRepository.update(cid, cart);
+    res
+      .status(200)
+      .json({
+        status: "success",
+        payload: "product list updated successfully",
       });
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
+});
+
+cartsRouter.put("/:cid/product/:pid", async (req, res) => {
+  const { cid, pid } = req.params;
+  const { quantity } = req.body;
+  try {
+    if (!isNaN(quantity)) {
+      await cartRepository.addQuantityToProduct(cid, pid, quantity);
+      res
+        .status(200)
+        .json({ status: "success", payload: "Product deleted successfully" });
+    } else {
+      let err = new Error("field [quantity] passed and must be a number");
+      err.status = 422;
+      throw err;
+    }
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
+});
+
+cartsRouter.delete("/:cid/", async (req, res) => {
+  const { cid } = req.params;
+  try {
+    await cartRepository.deleteAllProductsFromCart(cid);
+    res
+        .status(200)
+        .json({ status: "success", payload: "All products removed from cart successfully" });
+  } catch (err) {
+    commonErrorOutput(res, err);
+  }
 });
 
 export default cartsRouter;
