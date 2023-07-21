@@ -1,6 +1,22 @@
-
+<!-- Make view as cards grid-->
 <div class="container">
   <h2>Productos</h2>
+  <div class="input-group">
+    <label for="dropdown1" >Order</label>
+    <select class="custom-select" id="dropdown1">
+      <option value="asc">Ascendant</option>
+      <option value="desc">Descendant</option>
+      <option value="" selected>None</option>
+    </select>
+    
+    <label for="searchBox" >Category</label>
+    <input type="text" class="form-control" id="searchBox" placeholder="e.g. Cutlery...">
+    
+    <div class="input-group-append">
+      <button class="btn btn-primary" type="button" id="filterButton">Filter</button>
+    </div>
+  </div>
+
   <table class="table table-bordered">
     <thead>
        
@@ -8,37 +24,40 @@
         <th>Code</th>
         <th>Name</th>
         <th>Price</th>
-        <th>Status</th>
         <th>Stock</th>
       </tr>
       
     </thead>
 
-    <tbody> {{#each products}}
+    <tbody> 
+    {{#each payload}}
       <tr>
         <td>{{code}}</td>
-        <td>{{title}}</td>
-        <td>{{price}}</td>
-        <td>{{status}}</td>
+        <td><a class="page-link" href="../product/{{_id}}" >{{title}}</a></td>
+        <td>${{price}}</td>
         <td>{{stock}}</td>
         <td>
-          <button type="button" class="btn btn-success" onclick="re">addToCart</button>
+          <button type="button" class="btn btn-success" onclick="addProductToCart()">Add to Cart</button>
         </td>
-      </tr>{{/each}}
-  </table>
+      </tr>
+    {{/each}}
 
-  <!-- Pagination -->
+    
+  </table>
+  {{#if invalidPageError}}
+      <h3 class="text-danger">Error: Invalid page</h3>
+  {{/if}}
+
+
   <ul class="pagination">
-    <li class="page-item disabled">
-      <a class="page-link" href="#" tabindex="-1">Previous</a>
+    <li class="page-item {{#unless hasPrevPage}} disabled {{/unless}}">
+      <a class="page-link" href="{{prevPage}}" {{#unless hasPrevPage}} tabindex="-1"{{/unless}}>Previous</a>
     </li>
     <li class="page-item active">
-      <a class="page-link" href="#">1 <span class="sr-only">(current)</span></a>
+      <a class="page-link" href="{{page}}">{{page}} <span class="sr-only">(current)</span></a>
     </li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
-    <li class="page-item"><a class="page-link" href="#">3</a></li>
-    <li class="page-item">
-      <a class="page-link" href="#">Next</a>
+    <li class="page-item {{#unless hasNextPage}} disabled {{/unless}}">
+      <a class="page-link" href="{{nextPage}}" {{#unless hasNextPage}} tabindex="-1"{{/unless}}>Next</a>
     </li>
   </ul>
 </div>

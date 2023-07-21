@@ -12,6 +12,7 @@ export class ProductRepository extends CommonMDBRepository {
       page,
       sort: ['asc','desc'].includes(sort)? {price: sort} :null,
       customLabels: { docs: "payload" },
+      lean:true
     });
 
     delete result.totalDocs;

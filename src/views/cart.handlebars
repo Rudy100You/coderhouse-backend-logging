@@ -1,0 +1,25 @@
+
+<div class="container">
+  <h2>Carrito</h2>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Code</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Stock</th>
+      </tr>
+      
+    </thead>
+
+    <tbody> 
+    {{#each products}}
+      <tr>
+        <td>{{product.code}}</td>
+        <td><a class="page-link" href="../product/{{_id}}" >{{product.title}}</a></td>
+        <td>${{product.price}}</td>
+        <td>{{product.stock}}</td>
+      </tr>
+    {{/each}}
+  </table>
+</div>
