@@ -97,7 +97,7 @@ const initializePassport = (clientID, clientSecret) => {
         clientSecret,
         callbackURL:
           (process.env.ENV_STAGE === "PRO"
-            ? "https://coder-backend-auth.onrender.com"
+            ? "https://coder-backend-compl2.onrender.com"
             : "http://localhost:4000") + "/api/sessions/github/callback",
         scope: ['user:email'],
       },
