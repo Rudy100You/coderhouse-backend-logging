@@ -1,25 +1,13 @@
-/*eslint-disable no-undef*/
-const filter = document.getElementById("filterButton")
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-undef */
 
-filter.addEventListener("click",()=>{
-  const category = document.getElementById("searchBox").value
-  const order = document.getElementById("dropdown1").value
-  let query = "?"
-  
-  query += category  === ""? "" : `query={"category":"${category}"}` 
+function formToObject(formDoc) {
+  var formData = $(formDoc).serializeArray();
+  var formObject = {};
 
-  if(query.length > 1)
-   query += "&"
-   
-  query += order  === ""? "" : `sort=${order}}` 
-
-  window.location.href += query.length > 1? query:""
-})
-
-/*eslint-disable no-undef*/
-
-const addProductToCart = async (cid,pid)=>{
-  await fetch(`localhost:4000/api/carts/${cid}/product/${pid}`, {
-    method: 'POST'
+  $(formData).each(function(_index, obj){
+    formObject[obj.name] = obj.value;
   });
+
+  return formObject;
 }

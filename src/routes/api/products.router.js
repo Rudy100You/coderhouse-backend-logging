@@ -1,7 +1,7 @@
 import { Router } from "express";
 //import ProductManager from "../dao/managers/ProductManager.js";
-import { ProductRepository } from "../dao/repositories/product.repository.js";
-import { commonErrorOutput } from "../utils.js";
+import { ProductRepository } from "../../dao/repository/product.repository.js";
+import { commonErrorOutput } from "../../utils/utils.js";
 //const productMan = new ProductManager("src/data/productData.json");
 const productsRouter = Router();
 const productRepository = new ProductRepository();

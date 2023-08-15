@@ -1,10 +1,12 @@
 import { fileURLToPath } from "url";
-import { dirname } from "path";
-
+import { dirname, join } from "path";
+import bcrypt from "bcrypt"
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
-export default __dirname;
+//since utils is now in a new folder, is needed to access one dir level up
+export const __dirname = dirname(dirname(__filename));
+
+export const pathJoin = join
 
 export const commonErrorMessages = Object.freeze({
   INTERNAL_ERROR_STATUS: 500,
@@ -46,3 +48,7 @@ export const commonErrorOutput = (res, err, nfMessage) => {
     payload: err.message,
   });
 };
+
+export const hashPassword = password=> bcrypt.hashSync(password, bcrypt.genSaltSync(10))
+
+export const isValidPassword =(user, password)=> bcrypt.compareSync(password, user.password)

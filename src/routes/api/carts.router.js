@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { CartRepository } from "../dao/repositories/cart.repository.js";
-import { commonErrorOutput } from "../utils.js";
-import { ProductRepository } from "../dao/repositories/product.repository.js";
+import { CartRepository } from "../../dao/repository/cart.repository.js";
+import { commonErrorOutput } from "../../utils/utils.js";
+import { ProductRepository } from "../../dao/repository/product.repository.js";
 //import CartManager from "../dao/managers/CartManager.js"
 //const cartMan = new CartManager("src/data/cartData.json")
 //import { cartRepository } from "../dao/models/carts.repository.js"
