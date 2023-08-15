@@ -6,7 +6,7 @@ const sessionsRouter = Router();
 
 sessionsRouter.post(
   "/register",
-  passport.authenticate("register", { failureRedirect: "/error" }),
+  passport.authenticate("register", { failureRedirect: "/error", successRedirect: "/login" }),
   (req, res) => res.status(200)
 );
 
