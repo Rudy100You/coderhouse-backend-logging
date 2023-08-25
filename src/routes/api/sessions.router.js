@@ -6,7 +6,10 @@ const sessionsRouter = Router();
 
 sessionsRouter.post(
   "/register",
-  passport.authenticate("register", { failureRedirect: "/error", successRedirect: "/login" }),
+  passport.authenticate("register", {
+    failureRedirect: "/error",
+    successRedirect: "/login",
+  }),
   (req, res) => res.status(200)
 );
 
@@ -36,7 +39,7 @@ sessionsRouter.get(
   }
 );
 
-sessionsRouter.use(validateSession)
+sessionsRouter.use(validateSession);
 sessionsRouter.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -51,6 +54,5 @@ sessionsRouter.get("/logout", (req, res) => {
 sessionsRouter.get("/current", (req, res) => {
   res.send(req.user);
 });
-
 
 export default sessionsRouter;

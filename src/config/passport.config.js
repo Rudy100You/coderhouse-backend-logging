@@ -1,9 +1,9 @@
 import passport from "passport";
 import GitHubStrategy from "passport-github2";
-import userService from "../dao/service/user.service.js";
+import userService from "../services/user.service.js";
 import { Strategy } from "passport-local";
 import { hashPassword, isValidPassword } from "../utils/utils.js";
-import { AdminManager } from "../dao/fileSystem/admin.manager.js";
+import { AdminManager } from "../models/fileSystem/admin.manager.js";
 
 const adminManager = new AdminManager()
 

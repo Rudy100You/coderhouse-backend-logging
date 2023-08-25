@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { ProductRepository } from "../dao/repository/product.repository.js";
-import { CartRepository } from "../dao/repository/cart.repository.js";
+import { ProductRepository } from "../models/repository/product.repository.js";
+import { CartRepository } from "../models/repository/cart.repository.js";
 
 const viewsRouter = Router();
 const productRepository = new ProductRepository();

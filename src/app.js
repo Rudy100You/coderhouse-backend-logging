@@ -1,8 +1,7 @@
 import express from "express";
-import {__dirname, pathJoin} from "./utils/utils.js";
+import {DATABASE_NAME, GH_CLIENT_ID, GH_SESSION_SECRET, MDB_HOST, MDB_PASS, MDB_USER, PORT, RENDER_ENDPOINT, __dirname, pathJoin} from "./utils/utils.js";
 import handlebars from "express-handlebars";
 import viewsRouter from "./routes/views.router.js";
-import { config } from "dotenv";
 import cookieParser from "cookie-parser";
 import session from "express-session";
 import MongoStore from "connect-mongo";
@@ -11,23 +10,11 @@ import initializePassport from "./config/passport.config.js";
 import passport from "passport";
 import { validateSession, validateSessionAfterLogin } from "./utils/middlewares/session.validations.js";
 import apiRouter from "./routes/api.router.js";
-config({ path: pathJoin(__dirname, ".env" )});
 
-const {
-  MDB_USER,
-  MDB_PASS,
-  MDB_HOST,
-  DATABASE_NAME,
-  PORT,
-  RENDER_ENDPOINT,
-  GH_SESSION_SECRET,
-  GH_CLIENT_ID
-} = process.env;
 
 const MONGO_URL = `mongodb+srv://${MDB_USER}:${MDB_PASS}@${MDB_HOST}/${DATABASE_NAME}?retryWrites=true&w=majority`;
 
 const app = express();
-
 
 app.use(cookieParser());
 
