@@ -1,3 +1,5 @@
+import { equalsIgnoreCase } from "../utils.js";
+
 export const validateSession = (req, res, next) => {
     if (req.isAuthenticated()) {
       // Session is valid, proceed to the next middleware or route handler
@@ -16,3 +18,19 @@ if (req.isAuthenticated()) {
     next();
 }
 };
+
+export const currentUserIsAdmin = (req, res, next) => {
+    if (req.isAuthenticated() && equalsIgnoreCase(req.user, "ADMIN")) {
+      next();
+  } else {
+      res.redirect("/error");
+  }
+}
+
+export const currentUserIsUser = (req, res, next) => {
+  if (req.isAuthenticated() && equalsIgnoreCase(req.user, "USER")) {
+    next();
+} else {
+    res.redirect("/error");
+}
+}

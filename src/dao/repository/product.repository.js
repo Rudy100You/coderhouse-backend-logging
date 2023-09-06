@@ -1,4 +1,4 @@
-import { productSchema } from "../schema/products.schema.js";
+import { productSchema } from "../models/schema/products.schema.js";
 import { CommonMDBRepository } from "./commonMDB.repository.js";
 
 export class ProductRepository extends CommonMDBRepository {

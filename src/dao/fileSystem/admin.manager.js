@@ -1,7 +1,7 @@
 import {__dirname, pathJoin} from "../../utils/utils.js";
 import fs from "fs"
 
-export class AdminManager {
+class AdminManager {
     constructor (){
         console.log(__dirname)
         this.path = pathJoin(__dirname,"data","admins.json")
@@ -24,3 +24,5 @@ export class AdminManager {
     return JSON.parse(await fs.promises.readFile(this.path, "utf-8"));
     }
 } 
+
+export default new AdminManager()

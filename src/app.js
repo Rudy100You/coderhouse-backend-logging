@@ -1,5 +1,6 @@
 import express from "express";
-import {DATABASE_NAME, GH_CLIENT_ID, GH_SESSION_SECRET, MDB_HOST, MDB_PASS, MDB_USER, PORT, RENDER_ENDPOINT, __dirname, pathJoin} from "./utils/utils.js";
+import {DATABASE_NAME, GH_CLIENT_ID, GH_SESSION_SECRET, MDB_HOST, MDB_PASS, MDB_USER, PORT, PROD_ENDPOINT} from "./config/dotenv.config.js";
+import { __dirname, pathJoin} from "./utils/utils.js";
 import handlebars from "express-handlebars";
 import viewsRouter from "./routes/views.router.js";
 import cookieParser from "cookie-parser";
@@ -64,7 +65,7 @@ mongoose
 
     app.use("/",validateSession, viewsRouter);
 
-    app.listen(PORT, () => {
-      console.log(`Servidor iniciado en ${ RENDER_ENDPOINT || "https://127.0.0.1:"+ PORT+"/"} con éxito`);
+    app.listen(PORT??4000, () => {
+      console.log(`Servidor iniciado en ${ PROD_ENDPOINT + PORT || "https://localhost:"+ 4000  +"/"} con éxito`);
     });
   });

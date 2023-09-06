@@ -1,4 +1,4 @@
-import { ProductRepository } from "../models/repository/product.repository.js";
+import { ProductRepository } from "../dao/repository/product.repository.js";
 
 const productRepository = new ProductRepository();
 

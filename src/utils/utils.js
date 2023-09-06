@@ -1,26 +1,12 @@
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import bcrypt from "bcrypt";
-import { config } from "dotenv";
+
 const __filename = fileURLToPath(import.meta.url);
 
 //since utils is now in a new folder, is needed to access one dir level up
 export const __dirname = dirname(dirname(__filename));
 export const pathJoin = join;
-config({ path: pathJoin(__dirname, ".env" )});
-
-export const {
-  MDB_USER,
-  MDB_PASS,
-  MDB_HOST,
-  DATABASE_NAME,
-  PORT,
-  RENDER_ENDPOINT,
-  GH_SESSION_SECRET,
-  GH_CLIENT_ID
-} = process.env;
-
-
 
 export const commonErrorMessages = Object.freeze({
   INTERNAL_ERROR_STATUS: 500,
@@ -68,3 +54,5 @@ export const hashPassword = (password) =>
 
 export const isValidPassword = (user, password) =>
   bcrypt.compareSync(password, user.password);
+
+export const equalsIgnoreCase =(str1, str2) => str1.toLowerCase() === str2.toLowerCase()

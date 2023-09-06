@@ -1,4 +1,4 @@
-import { cartsSchema } from "../schema/carts.schema.js";
+import { cartsSchema } from "../models/schema/carts.schema.js";
 import { CommonMDBRepository } from "./commonMDB.repository.js";
 
 export class CartRepository extends CommonMDBRepository {

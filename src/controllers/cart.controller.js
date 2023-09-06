@@ -1,5 +1,6 @@
 import productService from "../services/product.service.js";
 import cartService from "../services/cart.service.js";
+import { commonErrorOutput } from "../utils/utils.js";
 
 class CartController {
   validateProducts = async (products) => {
@@ -40,7 +41,7 @@ class CartController {
   createCart = async (req, res) => {
     const newCart = req.body ?? { products: [] };
     try {
-      await validateProducts(newCart.products);
+      await this.validateProducts(newCart.products);
       await cartService.createCart(newCart);
       res
         .status(201)
@@ -78,7 +79,7 @@ class CartController {
     const { cid } = req.params;
     const cart = req.body;
     try {
-      await validateProducts(cart.products);
+      await this.validateProducts(cart.products);
       await cartService.updateCart(cid, cart);
       res.status(200).json({
         status: "success",
@@ -120,6 +121,20 @@ class CartController {
       commonErrorOutput(res, err);
     }
   };
+
+  finalizePurchase = async(req, res)=>{
+    const { cid } = req.params;
+    try {
+      await cartService.finalizePurchase(cid, req.user.email)
+
+      res.status(200).json({
+        status: "success",
+        payload: "Purchse finished sucessfully",
+      });
+    } catch (err) {
+      commonErrorOutput(res, err);
+    }
+  }
 }
 
 export default new CartController();

@@ -1,13 +1,20 @@
-import { UserRepository } from "../models/repository/user.repository.js";
+import { UserRepository } from "../dao/repository/user.repository.js";
 
 const userRepository = new UserRepository();
 
 class userService {
   findUserById = async (id) => 
-    await userRepository.getOne(id);
+  this.#removeSensitiveUserData(await userRepository.getOne(id));
   findUserByCriteria = async (criteria) =>
-    await userRepository.getOneByCriteria(criteria);
+  this.#removeSensitiveUserData(await userRepository.getOneByCriteria(criteria));
   createUser = async (user) => 
-    await userRepository.create(user);
+  this.#removeSensitiveUserData(await userRepository.create(user));
+
+  #removeSensitiveUserData= (user)=>{
+    if(user){
+      delete user.password
+    }
+    return user
+  }
 }
 export default new userService();
