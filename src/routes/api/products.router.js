@@ -7,6 +7,6 @@ productsRouter.get("/", productController.getAllProducts);
 productsRouter.get("/:pid", productController.getProduct);
 productsRouter.post("/",currentUserIsAdmin, productController.createProduct);
 productsRouter.put("/:pid",currentUserIsAdmin,productController.updateProductData);
-productsRouter.delete("/:pid",productController.deleteProduct);
+productsRouter.delete("/:pid",currentUserIsAdmin,productController.deleteProduct);
 
 export default productsRouter;

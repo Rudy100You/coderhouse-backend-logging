@@ -125,12 +125,23 @@ class CartController {
   finalizePurchase = async(req, res)=>{
     const { cid } = req.params;
     try {
-      await cartService.finalizePurchase(cid, req.user.email)
+      const productsWithoutStock = await cartService.finalizePurchase(cid, req.user.email)
 
-      res.status(200).json({
+      if (productsWithoutStock.length > 0)
+      {
+        res.status(409).json({
+          status: "failure",
+          message: "Purchse has products with no stock",
+          payload: {products: productsWithoutStock}
+        })
+      }
+      else{
+        res.status(200).json({
         status: "success",
         payload: "Purchse finished sucessfully",
       });
+      }
+      
     } catch (err) {
       commonErrorOutput(res, err);
     }

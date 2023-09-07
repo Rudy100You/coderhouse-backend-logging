@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { ProductRepository } from "../dao/repository/product.repository.js";
 import { CartRepository } from "../dao/repository/cart.repository.js";
+import { currentUserIsUser } from "../utils/middlewares/session.validations.js";
 
 const viewsRouter = Router();
 const productRepository = new ProductRepository();
@@ -40,7 +41,7 @@ viewsRouter.get("/product/:pid", async (req, res) => {
   res.render("product", products);
 });
 
-viewsRouter.get("/carts/:cid" ,async (req, res) => {
+viewsRouter.get("/carts/:cid" ,currentUserIsUser,async (req, res) => {
   const { cid } = req.params;
   let cart;
   try {
