@@ -2,14 +2,16 @@
 import GitHubStrategy from "passport-github2";
 import userService from "../../services/user.service.js";
 
+const {ENV_STAGE,PORT,APP_URL} = process.env
+
 export default (clientID, clientSecret)=> new GitHubStrategy(
     {
       clientID,
       clientSecret,
       callbackURL:
-        (process.env.ENV_STAGE === "PRO"
-          ? process.env.APP_URL
-          : "http://localhost:4000") + "/api/sessions/github/callback",
+        (ENV_STAGE === "PRO"
+          ? APP_URL
+          : "http://localhost:" + PORT ?? 4000) + "/api/sessions/github/callback",
       scope: ['user:email'],
     },
     async (accessToken, refreshToken, profile, done) => {
