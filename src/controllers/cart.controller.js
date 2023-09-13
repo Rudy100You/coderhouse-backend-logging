@@ -1,6 +1,11 @@
 import productService from "../services/product.service.js";
 import cartService from "../services/cart.service.js";
 import { commonErrorOutput } from "../utils/utils.js";
+import CustomError from "../utils/errors/CustomError.js";
+import ErrorTypes from "../utils/errors/ErrorTypes.js";
+import { generateNotFoundEntityDescription } from "../utils/errors/errorDescriptions.js";
+
+
 
 class CartController {
   validateProducts = async (products) => {
@@ -10,19 +15,14 @@ class CartController {
           .existsByCriteria({ _id: product.product })
           .then((exists) => {
             if (!exists) {
-              const err = new Error(
-                `Product with id [${product.product}] does not exist`
-              );
-              err.status = 404;
-              throw err;
+              CustomError.throwNewError({
+                error:ErrorTypes.ENTITY_DOES_NOT_EXIST_ERROR,
+                cause: generateNotFoundEntityDescription("Product"),
+                message: "Error when retrieving product",
+                customParameters: {entity:"Product", entityID: product}
+              })
             }
           })
-          .catch((e) => {
-            //TODO: generalize this error
-            if (e.name == "CastError")
-              e.message = `field [products.product] must be of type ${e.kind}`;
-            throw e;
-          });
       }
     }
     return true;
@@ -34,7 +34,8 @@ class CartController {
       const cart = await cartService.getOne(cartID);
       res.json({ status: "success", payload: cart });
     } catch (err) {
-      commonErrorOutput(res, err, "Cart could not be found");
+      err.notFoundEntity = "Cart";
+      throw err
     }
   };
 

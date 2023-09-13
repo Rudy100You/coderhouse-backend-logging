@@ -55,4 +55,4 @@ export const hashPassword = (password) =>
 export const isValidPassword = (user, password) =>
   bcrypt.compareSync(password, user.password);
 
-export const equalsIgnoreCase =(str1, str2) => str1.toLowerCase() === str2.toLowerCase()
+export const equalsIgnoreCase =(str1, str2) => String(str1).toLowerCase() === String(str2).toLowerCase()

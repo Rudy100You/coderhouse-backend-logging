@@ -11,6 +11,7 @@ import initializePassport from "./config/passport.config.js";
 import passport from "passport";
 import { validateSession, validateSessionAfterLogin } from "./utils/middlewares/session.validations.js";
 import apiRouter from "./routes/api.router.js";
+import errorHandler from "./utils/middlewares/error.handler.js";
 
 
 const MONGO_URL = `mongodb+srv://${MDB_USER}:${MDB_PASS}@${MDB_HOST}/${DATABASE_NAME}?retryWrites=true&w=majority`;
@@ -54,6 +55,7 @@ mongoose
     console.info("mongoose connected");
 
     app.use("/api", apiRouter);
+    app.use(errorHandler);
 
     app.get("/login", validateSessionAfterLogin, async (req, res) => {
       res.render("login", {});
