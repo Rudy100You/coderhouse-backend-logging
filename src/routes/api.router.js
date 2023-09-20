@@ -4,6 +4,7 @@ import sessionsRouter from "./api/sessions.router.js";
 import productsRouter from "./api/products.router.js";
 import { currentUserIsUser, validateSession } from "../utils/middlewares/session.validations.js";
 import { generateProducts } from "../utils/mock.generators.js";
+import { logger } from "../utils/middlewares/logger.handler.js";
 
 const apiRouter = Router()
 
@@ -22,6 +23,15 @@ apiRouter.get("/mockingproducts", (req,res)=>{
 
     res.status('200').send({products: products()})
 
+})
+
+apiRouter.get("/loggerTest",(req,res)=>{
+    logger.debug("This is a DEBUG message")
+    logger.info("This is an INFO message")
+    logger.warning("This is a WARN message")
+    logger.error("This is an ERROR message")
+    logger.fatal("This is a FATAL message")
+    res.status(200).send({status: "success", message: "Log successful. Please check console and/or file logs"})
 })
 
 export default apiRouter

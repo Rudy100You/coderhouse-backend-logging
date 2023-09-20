@@ -1,20 +1,18 @@
-import { ProductRepository } from "../dao/repository/product.repository.js";
+export default class ProductService {
+  constructor(productRepository){
+    this.productRepository = productRepository
+  }
 
-const productRepository = new ProductRepository();
-
-class ProductService {
-  findproductById = async (id) => await productRepository.getOne(id);
+  findproductById = async (id) => await this.productRepository.getOne(id);
   findproductByCriteria = async (criteria) =>
-    await productRepository.getOneByCriteria(criteria);
+    await this.productRepository.getOneByCriteria(criteria);
   existsByCriteria = async (criteria) =>
-    await productRepository.existsByCriteria(criteria);
-  createProduct = async (product) => await productRepository.create(product);
+    await this.productRepository.existsByCriteria(criteria);
+  createProduct = async (product) => await this.productRepository.create(product);
   getAllProductsPaginated = async (limit, page, query, sort) =>
-    await productRepository.getAllPaginated(limit, page, query, sort);
+    await this.productRepository.getAllPaginated(limit, page, query, sort);
   updateProduct = async (productID, product) =>
-    await productRepository.update(productID, product);
+    await this.productRepository.update(productID, product);
   deleteProduct = async (productID)=>
-    await productRepository.delete(productID);
+    await this.productRepository.delete(productID);
 }
-
-export default new ProductService();

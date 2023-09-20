@@ -1,17 +1,17 @@
-import productService from "../services/product.service.js";
-import cartService from "../services/cart.service.js";
 import { commonErrorOutput } from "../utils/utils.js";
 import CustomError from "../utils/errors/CustomError.js";
 import ErrorTypes from "../utils/errors/ErrorTypes.js";
 import { generateNotFoundEntityDescription } from "../utils/errors/errorDescriptions.js";
 
-
-
-class CartController {
+export default class CartController {
+  constructor(cartService, productService){
+    this.cartService = cartService
+    this.productService = productService
+  }
   validateProducts = async (products) => {
     if (products.length > 0) {
       for (const product of products) {
-        await productService
+        await this.productService
           .existsByCriteria({ _id: product.product })
           .then((exists) => {
             if (!exists) {
@@ -31,7 +31,7 @@ class CartController {
   getCart = async (req, res) => {
     let cartID = req.params.cid;
     try {
-      const cart = await cartService.getOne(cartID);
+      const cart = await this.cartService.getOne(cartID);
       res.json({ status: "success", payload: cart });
     } catch (err) {
       err.notFoundEntity = "Cart";
@@ -43,7 +43,7 @@ class CartController {
     const newCart = req.body ?? { products: [] };
     try {
       await this.validateProducts(newCart.products);
-      await cartService.createCart(newCart);
+      await this.cartService.createCart(newCart);
       res
         .status(201)
         .json({ status: "success", payload: "Cart created successfully" });
@@ -55,7 +55,7 @@ class CartController {
   insertCartProduct = async (req, res) => {
     const { cid, pid } = req.params;
     try {
-      await cartService.insertCartProducts(cid, pid);
+      await this.cartService.insertCartProducts(cid, pid);
       res
         .status(201)
         .json({ status: "success", payload: "Product inserted successfully" });
@@ -67,7 +67,7 @@ class CartController {
   deleteCartProduct = async (req, res) => {
     const { cid, pid } = req.params;
     try {
-      await cartService.removeFromCart(cid, pid);
+      await this.cartService.removeFromCart(cid, pid);
       res
         .status(200)
         .json({ status: "success", payload: "Product deleted successfully" });
@@ -81,7 +81,7 @@ class CartController {
     const cart = req.body;
     try {
       await this.validateProducts(cart.products);
-      await cartService.updateCart(cid, cart);
+      await this.cartService.updateCart(cid, cart);
       res.status(200).json({
         status: "success",
         payload: "product list updated successfully",
@@ -96,7 +96,7 @@ class CartController {
     const { quantity } = req.body;
     try {
       if (!isNaN(quantity)) {
-        await cartService.addQuantityToProduct(cid, pid, quantity);
+        await this.cartService.addQuantityToProduct(cid, pid, quantity);
         res
           .status(200)
           .json({ status: "success", payload: "Product deleted successfully" });
@@ -113,7 +113,7 @@ class CartController {
   deleteAllProductsFromCart = async (req, res) => {
     const { cid } = req.params;
     try {
-      await cartService.deleteAllProductsFromCart(cid);
+      await this.cartService.deleteAllProductsFromCart(cid);
       res.status(200).json({
         status: "success",
         payload: "All products removed from cart successfully",
@@ -126,7 +126,7 @@ class CartController {
   finalizePurchase = async(req, res)=>{
     const { cid } = req.params;
     try {
-      const productsWithoutStock = await cartService.finalizePurchase(cid, req.user.email)
+      const productsWithoutStock = await this.cartService.finalizePurchase(cid, req.user.email)
 
       if (productsWithoutStock.length > 0)
       {
@@ -148,5 +148,3 @@ class CartController {
     }
   }
 }
-
-export default new CartController();

@@ -11,7 +11,8 @@ import initializePassport from "./config/passport.config.js";
 import passport from "passport";
 import { validateSession, validateSessionAfterLogin } from "./utils/middlewares/session.validations.js";
 import apiRouter from "./routes/api.router.js";
-import errorHandler from "./utils/middlewares/error.handler.js";
+import {errorHandler} from "./utils/middlewares/error.handler.js";
+import { addLogger, logger } from "./utils/middlewares/logger.handler.js";
 
 
 const MONGO_URL = `mongodb+srv://${MDB_USER}:${MDB_PASS}@${MDB_HOST}/${DATABASE_NAME}?retryWrites=true&w=majority`;
@@ -52,8 +53,11 @@ app.set("view engine", "handlebars");
 mongoose
   .connect(MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
-    console.info("mongoose connected");
 
+    app.use(addLogger)
+
+    logger.info("mongoose connected");
+    
     app.use("/api", apiRouter);
     app.use(errorHandler);
 
@@ -67,7 +71,9 @@ mongoose
 
     app.use("/",validateSession, viewsRouter);
 
+  
+
     app.listen(PORT??4000, () => {
-      console.log(`Servidor iniciado en ${ PROD_ENDPOINT + PORT || "https://localhost:"+ 4000  +"/"} con éxito`);
+      logger.info(`Servidor iniciado en ${ PROD_ENDPOINT + PORT || "https://localhost:"+ 4000  +"/"} con éxito`);
     });
   });

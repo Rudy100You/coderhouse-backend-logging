@@ -1,6 +1,7 @@
 import { Strategy } from "passport-local";
 import { hashPassword } from "../../utils/utils.js";
 import userService from "../../services/user.service.js";
+import { logger } from "../../utils/middlewares/logger.handler.js";
 
 
 export default ()=> new Strategy(
@@ -15,7 +16,7 @@ export default ()=> new Strategy(
       try {
         const user = await userService.findUserByCriteria({email }); 
         if (user) {
-          console.log("User already exists");
+          logger.warn("User already exists");
           return done(null, false);
         }
 

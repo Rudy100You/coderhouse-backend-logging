@@ -4,6 +4,20 @@ import bcrypt from "bcrypt";
 
 const __filename = fileURLToPath(import.meta.url);
 
+const getTimestampForLogFile =()=> {
+  const now = new Date();
+  
+  const year = now.getFullYear().toString().padStart(4, '0');
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const milliseconds = now.getMilliseconds().toString().padStart(4, '0');
+
+  return `${year}${month}${day}_${hours}${minutes}${seconds}${milliseconds}`;
+}
+
 //since utils is now in a new folder, is needed to access one dir level up
 export const __dirname = dirname(dirname(__filename));
 export const pathJoin = join;
@@ -56,3 +70,11 @@ export const isValidPassword = (user, password) =>
   bcrypt.compareSync(password, user.password);
 
 export const equalsIgnoreCase =(str1, str2) => String(str1).toLowerCase() === String(str2).toLowerCase()
+
+export const resolveLogFileOutput = ()=>{ 
+  const outputFileName = `ecommerce_backend_${getTimestampForLogFile()}.log`
+  const logDIR = process.env.LOG_PATH
+  if(logDIR)
+   return pathJoin(logDIR, outputFileName)
+  return pathJoin(__dirname, "logs", outputFileName)
+}

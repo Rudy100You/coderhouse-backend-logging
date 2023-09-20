@@ -1,12 +1,14 @@
+import { logger } from "../../utils/middlewares/logger.handler.js";
 import {__dirname, pathJoin} from "../../utils/utils.js";
 import fs from "fs"
 
 class AdminManager {
     constructor (){
-        console.log(__dirname)
+        
         this.path = pathJoin(__dirname,"data","admins.json")
             if (!fs.existsSync(this.path)) 
             throw "Error: File not Found";
+        logger.debug(`Sucessfully initialized AdminManager with file [${this.path}]`)
     }
     async findAdminByEmailAndPassword(email,password){
             const adminUsers = await this.parseDataFromFile()

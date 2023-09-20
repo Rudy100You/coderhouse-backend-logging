@@ -1,4 +1,5 @@
 import ErrorTypes from "../errors/ErrorTypes.js";
+import { logger } from "./logger.handler.js";
 
 
 
@@ -11,8 +12,8 @@ const findLowestMDBError = (error)=>{
 }
 
 // eslint-disable-next-line no-unused-vars
-export default (error,req,res, next)=>{
-    console.log(error.cause || error);
+export const errorHandler = (error,req,res, next)=>{
+    logger.error(error.cause || error.message);
 
     if (error instanceof SyntaxError && error.status === 400 && 'body' in error) {
         return res.status(400).send({ status: "error", message: "Request is malformed. Please Check Syntax." });

@@ -1,31 +1,31 @@
-import { CartRepository} from "../dao/repository/cart.repository.js";
 import CartDTO from "../dto/cart.dto.js";
 import ProductDTO from "../dto/product.dto.js";
-import productService from "./product.service.js";
 import ticketService from "./ticket.service.js";
 
-const cartRepository = new CartRepository();
-
-class CartService {
+export default class CartService {
+  constructor(productService, cartRepository){
+    this.productService = productService;
+    this.cartRepository = cartRepository
+  }
   findcartById = async (id) => 
-    await cartRepository.getOne(id);
+    await this.cartRepository.getOne(id);
   findcartByCriteria = async (criteria) =>
-    await cartRepository.getOneByCriteria(criteria);
+    await this.cartRepository.getOneByCriteria(criteria);
   createCart = async (cart) => 
-    await cartRepository.create(cart);
+    await this.cartRepository.create(cart);
   addQuantityToProduct = async (cid, pid, quantity) =>
-    await cartRepository.addQuantityToProduct(cid, pid, quantity)
+    await this.cartRepository.addQuantityToProduct(cid, pid, quantity)
   insertCartProducts = async (cid,pid)=>{
-    if(productService.findproductById(pid))
-      return await cartRepository.insertCartProducts(cid,pid)
+    if(this.productService.findproductById(pid))
+      return await this.cartRepository.insertCartProducts(cid,pid)
     throw new Error("Product does not exist")
   }
   removeFromCart = async (cid,pid)=>
-    await cartRepository.removeFromCart(cid, pid)
+    await this.cartRepository.removeFromCart(cid, pid)
   updateCart = async (cid,cart)=>
-    await cartRepository.update(cid,cart)
+    await this.cartRepository.update(cid,cart)
   deleteAllProductsFromCart = async(cid)=> 
-    await cartRepository.deleteAllProductsFromCart(cid)
+    await this.cartRepository.deleteAllProductsFromCart(cid)
 
   finalizePurchase = async(cid, purchaser)=>{
     let cart = new CartDTO(this.findcartById(cid))
@@ -33,12 +33,12 @@ class CartService {
     let productsWithoutStock = [];
 
     cart.products.forEach(async (item, idx, pArray) =>{ 
-      const product = new ProductDTO(await productService.findproductById(item.product))
+      const product = new ProductDTO(await this.productService.findproductById(item.product))
       if(item.quantity > product.stock)
         productsWithoutStock = [...productsWithoutStock, pArray.splice(idx,1)[0].product]
       else{
         product.stock =- item.quantity
-        await productService.updateProduct(product._id, product)
+        await this.productService.updateProduct(product._id, product)
         totalAmount += (product.price * item.quantity)
       }
     })
@@ -46,9 +46,7 @@ class CartService {
       return productsWithoutStock
     else{
       await ticketService.createTicket(totalAmount, purchaser)
-      await cartRepository.delete(cid)
+      await this.cartRepository.delete(cid)
     }
   }
 }
-
-export default new CartService();

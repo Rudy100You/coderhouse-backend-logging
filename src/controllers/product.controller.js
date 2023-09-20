@@ -1,14 +1,17 @@
-import productService from "../services/product.service.js";
 import CustomError from "../utils/errors/CustomError.js";
 import ErrorTypes from "../utils/errors/ErrorTypes.js";
 
-class ProductController {
+export default class ProductController {
+  constructor(productService){
+    this.productService = productService
+  }
+
   getAllProducts = (req, res) => {
     let responseBodyMapping;
     let { limit, page, query, sort } = req.query;
 
     if (!limit || parseInt(limit) === 0) limit = 10;
-    productService.getAllPaginated(limit, page, query, sort).then((pagRes) => {
+    this.productService.getAllPaginated(limit, page, query, sort).then((pagRes) => {
       responseBodyMapping = pagRes;
       if (
         page &&
@@ -34,21 +37,21 @@ class ProductController {
       res.json({ status: "success", ...responseBodyMapping });
     });
   };
-  getProduct = (req, res) => {
+  getProduct = (req, res, next) => {
     let productID = req.params.pid;
-    productService
+    this.productService
       .findproductById(productID)
       .then((product) => {
         res.json(product);
       })
       .catch((err) => {
         err.notFoundEntity = "Product";
-        throw err;
+        next( err);
       });
   };
-  createProduct = async (req, res) => {
+  createProduct =async (req, res) => {
     const newProduct = req.body;
-    const productFound = await productService.existsByCriteria({
+    const productFound = await this.productService.existsByCriteria({
       code: newProduct.code,
     });
     if (productFound) {
@@ -61,40 +64,38 @@ class ProductController {
         }
       );
     } else {
-      await productService.createProduct(newProduct);
+      await this.productService.createProduct(newProduct);
       res
         .status(201)
         .json({ status: "success", payload: "Product created successfully" });
     }
   };
 
-  updateProductData = async (req, res) => {
+  updateProductData =async (req, res, next) => {
     const productID = req.params.pid;
     const modProduct = req.body;
 
     try {
-      await productService.updateProduct(productID, modProduct);
+      await this.productService.updateProduct(productID, modProduct);
       res
         .status(200)
         .json({ status: "success", payload: "Product updated successfully" });
     } catch (err) {
       err.notFoundEntity = "Product";
-      throw err;
+      next(err);
     }
   };
 
-  deleteProduct = async (req, res) => {
+  deleteProduct =async (req, res, next) => {
     const productID = req.params.pid;
     try {
-      await productService.delete(productID);
+      await this.productService.delete(productID);
       res
         .status(200)
         .json({ status: "success", payload: "Product deleted successfully" });
     } catch (err) {
       err.notFoundEntity = "Product";
-      throw err;
+      next(err);
     }
   };
 }
-
-export default new ProductController();

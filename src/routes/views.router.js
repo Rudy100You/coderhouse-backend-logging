@@ -1,11 +1,16 @@
 import { Router } from "express";
-import { ProductRepository } from "../dao/repository/product.repository.js";
-import { CartRepository } from "../dao/repository/cart.repository.js";
 import { currentUserIsUser } from "../utils/middlewares/session.validations.js";
+import ProductController from "../controllers/product.controller.js";
+import ProductRepository from "../dao/repository/product.repository.js";
+import ProductService from "../services/product.service.js";
+import CartController from "../controllers/cart.controller.js";
+import CartService from "../services/cart.service.js";
+import CartRepository from "../dao/repository/cart.repository.js";
 
 const viewsRouter = Router();
-const productRepository = new ProductRepository();
-const cartRepository = new CartRepository();
+const productService = new ProductService(new ProductRepository())
+const productController = new ProductController(productService)
+const cartController = new CartController(new CartService(productService, new CartRepository()), productService)
 
 viewsRouter.get("/products", (req, res) => {
   res.redirect("/products/1");
@@ -16,7 +21,7 @@ viewsRouter.get("/products/:pgid?", async (req, res) => {
   let { category, sort } = req.query;
   let data;
   try {
-    data = await productRepository.getAllPaginated(
+    data = await productController.getAllProducts(
       10,
       pgid,
       { category: category },
@@ -34,7 +39,7 @@ viewsRouter.get("/product/:pid", async (req, res) => {
   const { pid } = req.params;
   let products;
   try {
-    products = await productRepository.getOne(pid);
+    products = await productController.getProduct(pid);
   } catch (err) {
     console.error(err);
   }
@@ -45,7 +50,7 @@ viewsRouter.get("/carts/:cid" ,currentUserIsUser,async (req, res) => {
   const { cid } = req.params;
   let cart;
   try {
-    cart = await cartRepository.getOne(cid);
+    cart = await cartController.getCart(cid);
   } catch (err) {
     console.error(err);
   }

@@ -1,7 +1,7 @@
 import { productSchema } from "../models/schema/products.schema.js";
 import { CommonMDBRepository } from "./commonMDB.repository.js";
 
-export class ProductRepository extends CommonMDBRepository {
+export default class ProductRepository extends CommonMDBRepository {
   constructor() {
     super("products", productSchema);
   }
