@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 
 const __filename = fileURLToPath(import.meta.url);
 
+
+// eslint-disable-next-line no-unused-vars
 const getTimestampForLogFile =()=> {
   const now = new Date();
   
@@ -72,7 +74,7 @@ export const isValidPassword = (user, password) =>
 export const equalsIgnoreCase =(str1, str2) => String(str1).toLowerCase() === String(str2).toLowerCase()
 
 export const resolveLogFileOutput = ()=>{ 
-  const outputFileName = `ecommerce_backend_${getTimestampForLogFile()}.log`
+  const outputFileName = "errors.log"//`ecommerce_backend_${getTimestampForLogFile()}.log`
   const logDIR = process.env.LOG_PATH
   if(logDIR)
    return pathJoin(logDIR, outputFileName)
